@@ -1,0 +1,60 @@
+project_creation:
+  request_template:
+    file_path: "path/to/Request_Create_Template.csv"
+    required_columns:
+      - "Sales Order #"
+      - "Customer"
+      - "Oracle Template"
+      - "Revenue Budget"
+      - "Cost Budget"
+      - "Project Start Date"
+      - "Project Completion Date"
+
+  bel_template:
+    file_path: "path/to/BEL_Data_Template.csv"
+    required_columns:
+      - "Sales Order #"
+      - "Total"
+      - "Category"
+
+  output_files:
+    project_details: "path/to/Project_Details_Data_Template.csv"
+    budget_details: "path/to/Budget_Details_Data_Template.csv"
+    bel_details: "path/to/BEL_Details_Data_Template.csv"
+
+customer_so:
+  api_url: "http://127.0.0.1:8000/get_so/{so_number}"
+  required_fields:
+    - "SO Number"
+    - "SO Amount"
+    - "Customer Name"
+
+validation_rules:
+  funding_equals_budget: true     # Funding on agreements must match the budget
+  budget_not_exceed_so: true      # Budget cannot exceed total SO amount
+  bel_equals_revenue_budget: true # BEL total must match revenue budget
+
+  # Required fields to validate before proceeding
+  required_project_fields:
+    - "Company"
+    - "Project Name"
+    - "Market"
+    - "LOB"
+  required_budget_fields:
+    - "Task Number"
+    - "Amount"
+  required_bel_fields:
+    - "SO"
+    - "SO Amount"
+
+error_handling:
+  stop_on_error: true  # Script will pause and request user input on errors
+  log_errors_to: "logs/validation_errors.log"
+
+user_input:
+  enabled: true
+  prompt_fields:
+    - "Sales Order #"
+    - "Project Number"
+    - "Budget Amount"
+    - "BEL Total"

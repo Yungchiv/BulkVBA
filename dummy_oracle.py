@@ -19,7 +19,7 @@ def create_database():
         FOREIGN KEY(company_id) REFERENCES Companies(company_id)
     );
 
-    CREATE TABLE Customers (
+        CREATE TABLE Customers (
         customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
         company_id INTEGER,
         customer_name TEXT NOT NULL,
@@ -27,6 +27,7 @@ def create_database():
         customer_bill_address TEXT NOT NULL,
         FOREIGN KEY(company_id) REFERENCES Companies(company_id)
     );
+
 
     CREATE TABLE LOBs (id INTEGER PRIMARY KEY AUTOINCREMENT, template_id INTEGER, lob TEXT NOT NULL);
     CREATE TABLE Regions (id INTEGER PRIMARY KEY AUTOINCREMENT, template_id INTEGER, region TEXT NOT NULL);
@@ -53,16 +54,15 @@ def insert_sample_data():
     id_1802 = cursor.fetchone()[0]
 
     templates = [(id_1805, 'T-MOD'), (id_1805, 'Revbill'), (id_1802, 'Revbill'), (id_1802, 'POC')]
-
     cursor.executemany("INSERT INTO OracleTemplates (company_id, template_name) VALUES (?, ?)", templates)
 
-    cursor.execute("SELECT template_id FROM OracleTemplates WHERE template_name='T-MOD'")
+    cursor.execute("SELECT template_id FROM OracleTemplates WHERE template_name='T-MOD' AND company_id=?", (id_1805,))
     tmod_id = cursor.fetchone()[0]
-    cursor.execute("SELECT template_id FROM OracleTemplates WHERE company_id=? AND template_name='Revbill'", (id_1805,))
-    revbill_id = cursor.fetchone()[0]
-    cursor.execute("SELECT template_id FROM OracleTemplates WHERE company_id=? AND template_name='Revbill'", (id_1802,))
-    revbill_id = cursor.fetchone()[0]
-    cursor.execute("SELECT template_id FROM OracleTemplates WHERE template_name='POC'")
+    cursor.execute("SELECT template_id FROM OracleTemplates WHERE template_name='Revbill' AND company_id=?", (id_1805,))
+    revbill_id_1805 = cursor.fetchone()[0]
+    cursor.execute("SELECT template_id FROM OracleTemplates WHERE template_name='Revbill' AND company_id=?", (id_1802,))
+    revbill_id_1802 = cursor.fetchone()[0]
+    cursor.execute("SELECT template_id FROM OracleTemplates WHERE template_name='POC' AND company_id=?", (id_1802,))
     poc_id = cursor.fetchone()[0]
 
     valid_customers_1805 = [
@@ -78,49 +78,61 @@ def insert_sample_data():
     cursor.executemany("INSERT INTO Customers (company_id, customer_name, customer_code, customer_bill_address) VALUES (?, ?, ?, ?)", valid_customers_1805)
     cursor.executemany("INSERT INTO Customers (company_id, customer_name, customer_code, customer_bill_address) VALUES (?, ?, ?, ?)", valid_customers_1802)
 
+    # Move the valid_data dictionary INSIDE here (after IDs defined)
     valid_data = {
-    tmod_id: {
-        "LOBs": ["LOB1", "LOB2", "LOB4", "LOB5"],
-        "Regions": ["Region1", "Region2", "Region4", "Region5"],
-        "Markets": ["MarketA", "MarketB", "MarketD", "MarketE"],
-        "Submarkets": ["SubmarketX", "SubmarketY", "SubmarketW", "SubmarketV"],
-        "PhysicalStates": ["NY", "CA", "FL", "WA"],
-        "RegionalManagers": ["John Doe", "Alice Brown", "Eve Grey", "Frank Blue"],
-        "ProjectManagers": ["Jane Smith", "Bob White", "Sam Green", "Sara Red"],
-        "ProjectTypes": ["Initiative Alpha", "Initiative Beta", "Initiative Delta", "Initiative Epsilon"]
-    },
-    revbill_id: {
-        "LOBs": ["LOB1", "LOB3", "LOB4", "LOB6"],
-        "Regions": ["Region1", "Region3", "Region4", "Region6"],
-        "Markets": ["MarketA", "MarketC", "MarketD", "MarketF"],
-        "Submarkets": ["SubmarketX", "SubmarketZ", "SubmarketW", "SubmarketU"],
-        "PhysicalStates": ["NY", "TX", "FL", "OR"],
-        "RegionalManagers": ["John Doe", "Charlie Green", "Eve Grey", "Hannah White"],
-        "ProjectManagers": ["Jane Smith", "David Black", "Sam Green", "Peter Gold"],
-        "ProjectTypes": ["Initiative Alpha", "Initiative Gamma", "Initiative Delta", "Initiative Zeta"]
-    },
-    poc_id: {
-        "LOBs": ["LOB1", "LOB4", "LOB8", "LOB9"],  # Overlap LOB1 & LOB4
-        "Regions": ["Region3", "Region5", "Region9", "Region10"],  # Overlap Region3 & Region5
-        "Markets": ["MarketA", "MarketF", "MarketG", "MarketH"],  # Overlap MarketA & MarketF
-        "Submarkets": ["SubmarketU", "SubmarketV", "SubmarketS", "SubmarketT"],  # Overlap SubmarketU & SubmarketV
-        "PhysicalStates": ["FL", "OR", "GA", "NV"],  # Overlap FL & OR
-        "RegionalManagers": ["Eve Grey", "Frank Blue", "Laura Silver", "Tom Bronze"],  # Overlap Eve Grey & Frank Blue
-        "ProjectManagers": ["Sam Green", "Sara Red", "Olivia Pink", "George Orange"],  # Overlap Sam Green & Sara Red
-        "ProjectTypes": ["Initiative Delta", "Initiative Epsilon", "Initiative Theta", "Initiative Lambda"]  # Overlap Delta & Epsilon
+        tmod_id: {
+            "LOBs": ["LOB1", "LOB2", "LOB4", "LOB5"],
+            "Regions": ["Region1", "Region2", "Region4", "Region5"],
+            "Markets": ["MarketA", "MarketB", "MarketD", "MarketE"],
+            "Submarkets": ["SubmarketX", "SubmarketY", "SubmarketW", "SubmarketV"],
+            "PhysicalStates": ["NY", "CA", "FL", "WA"],
+            "RegionalManagers": ["John Doe", "Alice Brown", "Eve Grey", "Frank Blue"],
+            "ProjectManagers": ["Jane Smith", "Bob White", "Sam Green", "Sara Red"],
+            "ProjectTypes": ["Initiative Alpha", "Initiative Beta", "Initiative Delta", "Initiative Epsilon"]
+        },
+        revbill_id_1802: {
+            "LOBs": ["LOB1", "LOB3", "LOB4", "LOB6"],
+            "Regions": ["Region1", "Region3", "Region4", "Region6"],
+            "Markets": ["MarketA", "MarketC", "MarketD", "MarketF"],
+            "Submarkets": ["SubmarketX", "SubmarketZ", "SubmarketW", "SubmarketU"],
+            "PhysicalStates": ["NY", "TX", "FL", "OR"],
+            "RegionalManagers": ["John Doe", "Charlie Green", "Eve Grey", "Hannah White"],
+            "ProjectManagers": ["Jane Smith", "David Black", "Sam Green", "Peter Gold"],
+            "ProjectTypes": ["Initiative Alpha", "Initiative Gamma", "Initiative Delta", "Initiative Zeta"]
+        },
+        poc_id: {
+            "LOBs": ["LOB1", "LOB4", "LOB8", "LOB9"],
+            "Regions": ["Region3", "Region5", "Region9", "Region10"],
+            "Markets": ["MarketA", "MarketF", "MarketG", "MarketH"],
+            "Submarkets": ["SubmarketU", "SubmarketV", "SubmarketS", "SubmarketT"],
+            "PhysicalStates": ["FL", "OR", "GA", "NV"],
+            "RegionalManagers": ["Eve Grey", "Frank Blue", "Laura Silver", "Tom Bronze"],
+            "ProjectManagers": ["Sam Green", "Sara Red", "Olivia Pink", "George Orange"],
+            "ProjectTypes": ["Initiative Delta", "Initiative Epsilon", "Initiative Theta", "Initiative Lambda"]
+        }
     }
-}
+
+    column_mapping = {
+        "LOBs": "lob",
+        "Regions": "region",
+        "Markets": "market",
+        "Submarkets": "submarket",
+        "PhysicalStates": "physical_state",
+        "RegionalManagers": "regional_manager",
+        "ProjectManagers": "project_manager",
+        "ProjectTypes": "project_type"
+    }
 
     for template_id, categories in valid_data.items():
         for table, values in categories.items():
-            col = table[:-1].lower()
+            col = column_mapping[table]
             for val in values:
                 cursor.execute(f"INSERT INTO {table} (template_id, {col}) VALUES (?, ?)", (template_id, val))
 
     conn.commit()
     conn.close()
+    print("Database setup and populated successfully.")
 
 if __name__ == "__main__":
     create_database()
     insert_sample_data()
-    print("Database setup and populated successfully.")

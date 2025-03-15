@@ -1,0 +1,2 @@
+api launch = uvicorn mock_api:app --reload
+database = python dummy_oracle.py

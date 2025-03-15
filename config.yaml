@@ -1,3 +1,11 @@
+# Example content to start with
+db_path: "dummy_oracle.db"
+mock_api_url: "http://localhost:8000/get_so"
+
+db_path: "dummy_oracle.db"
+mock_api_url: "http://localhost:8000/get_so"
+csv_folder: "./input_csv/"
+
 project_creation:
   request_template:
     file_path: "path/to/Request_Create_Template.csv"
@@ -58,3 +66,4 @@ user_input:
     - "Project Number"
     - "Budget Amount"
     - "BEL Total"
+

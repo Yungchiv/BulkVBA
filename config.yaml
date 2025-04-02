@@ -5,6 +5,7 @@ mock_api_url: "http://localhost:8000/get_so"
 db_path: "dummy_oracle.db"
 mock_api_url: "http://localhost:8000/get_so"
 csv_folder: "./input_csv/"
+bel_csv_folder: "./bel_csv/"
 
 project_creation:
   request_template:
